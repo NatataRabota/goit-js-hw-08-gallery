@@ -23,10 +23,9 @@ const galleryMarkup = makeGalleryMarkup(galleryItems); // Переменная �
 refs.gallery.insertAdjacentHTML('afterbegin', galleryMarkup); // Добавляет разметку в галлерею
 
 refs.gallery.addEventListener('click', onModalOpen);
-refs.lightbox.addEventListener('click', changeLightboxImage);
 refs.lightbox.addEventListener('click', onModalClose);
 
-// Настройки обзервера
+// Oбзервер
 const options = {
   threshold: 0.2,
 };
@@ -51,7 +50,7 @@ function onEntry(entries) {
   });
 }
 
-// Функция, создающая разметку из массива
+// Функция для создания разметки
 function makeGalleryMarkup(items) {
   return items
     .map(({ preview, original, description }) => {
@@ -74,16 +73,17 @@ function makeGalleryMarkup(items) {
 // Коллбек для слушателя открытия модалки
 function onModalOpen(e) {
   e.preventDefault();
-  document.body.style.overflow = 'hidden'; // Фикс скролла на боди при открытой модалке
+  document.body.style.overflow = 'hidden'; // Скролл на боди при открытой модалке
 
-  if (e.target.tagName !== 'IMG') {
+  if (e.target.nodeName !== 'IMG') {
     return;
   }
 
   setOriginalImageOnLightbox(e); // Меняет превью изображения на оригинал
   addOpenLightboxClass(); // Добавляет класс открытой модалки
 
-  // Добавляет слушателей для манипуляций с клавиатуры
+
+  // Добавляет слушателей для работы с клавиатуры
   window.addEventListener('keydown', onModalClose);
   window.addEventListener('keydown', onArrowPress);
 }
@@ -94,92 +94,38 @@ function onModalClose(e) {
   const isLightboxCloseBtnEl = e.target === refs.lightboxCloseBtn;
   const isEscBtn = e.code === 'Escape';
 
-//   // Проверка на нажатие необходимых для закрытия кнопок
-//   if (isLightboxOverlayEl || isLightboxCloseBtnEl || isEscBtn) {
-//     removeOpenLightboxClass(); // Убирает класс открытой модалки
+  // Проверка на нажатие необходимых для закрытия кнопок
+  if (isLightboxOverlayEl || isLightboxCloseBtnEl || isEscBtn) {
+    removeOpenLightboxClass(); // Убирает класс открытой модалки
 
-//     // Очищает значение атрибута src/alt элемента img.lightbox__image
-//     refs.lightboxImg.src = '';
-//     refs.lightboxImg.alt = '';
+    // Очищает значение атрибута src/alt элемента img.lightbox__image
+    refs.lightboxImg.src = '';
+    refs.lightboxImg.alt = '';
 
-//     document.body.removeAttribute('Style');
-//     window.removeEventListener('keydown', onModalClose);
-//     window.removeEventListener('keydown', onArrowPress);
-//   }
-// }
+    document.body.removeAttribute('Style');
+    window.removeEventListener('keydown', onModalClose);
+    window.removeEventListener('keydown', onArrowPress);
+  }
+}
 
-// function onArrowPress(e) {
-//   changeLightboxImage(e);
-// }
+function onArrowPress(e) {
+  changeLightboxImage(e);
+}
 
-// // Меняет изображения по нажатию на стрелки
-// function changeLightboxImage(e) {
-//   const isArrowRightKey = e.code === 'ArrowRight';
-//   const isArrowLeftKey = e.code === 'ArrowLeft';
-//   const isArrowRightBtn = e.target.classList.contains('lightbox__arrow--right');
-//   const isArrowLeftBtn = e.target.classList.contains('lightbox__arrow--left');
 
-//   let currentLightboxImage = refs.lightboxImg.src; // Текущее изображение модалки
-//   let currentIndex = 0;
+// Устанавливает оригинальное изображение
+function setOriginalImageOnLightbox(e) {
+  const originalImg = e.target.dataset.source;
+  const description = e.target.alt;
 
-//   // Поиск индекса текущего изображения
-//   galleryItems.forEach((item, index) => {
-//     const originalImage = item.original;
+  refs.lightboxImg.src = originalImg;
+  refs.lightboxImg.alt = description;
+}
 
-//     if (currentLightboxImage === originalImage) {
-//       currentIndex = index;
-//     }
-//   });
+function addOpenLightboxClass() {
+  refs.lightbox.classList.add('is-open');
+}
 
-//   // Индекс следующего изображения
-//   if (isArrowRightKey || isArrowRightBtn) {
-//     refs.lightboxImg.style.opacity = 0; // Начальная прозрачность для плавного перехода между картинками
-//     currentIndex += 1;
-
-//     setTimeout(appearance, 150);
-//   }
-
-//   // Индекс предыдущего изображения
-//   if (isArrowLeftKey || isArrowLeftBtn) {
-//     refs.lightboxImg.style.opacity = 0; // Начальная прозрачность для плавного перехода между картинками
-//     currentIndex -= 1;
-
-//     setTimeout(appearance, 150);
-//   }
-
-//   // Зацикливание в конце галереи
-//   if (currentIndex > galleryItems.length - 1) {
-//     currentIndex = 0;
-//   }
-
-//   // Зацикливание в начале галереи
-//   if (currentIndex < 0) {
-//     currentIndex = galleryItems.length - 1;
-//   }
-
-//   // Коллбек для таймера
-//   function appearance() {
-//     refs.lightboxImg.style.opacity = 1;
-
-//     // Присваивание SRC/ALT следующего изображения
-//     refs.lightboxImg.src = galleryItems[currentIndex].original;
-//     refs.lightboxImg.alt = galleryItems[currentIndex].description;
-//   }
-// }
-
-// // Устанавливает оригинальное изображение
-// function setOriginalImageOnLightbox(e) {
-//   const originalImg = e.target.dataset.source;
-//   const description = e.target.alt;
-
-//   refs.lightboxImg.src = originalImg;
-//   refs.lightboxImg.alt = description;
-// }
-
-// function addOpenLightboxClass() {
-//   refs.lightbox.classList.add('is-open');
-// }
-
-// function removeOpenLightboxClass() {
-//   refs.lightbox.classList.remove('is-open');
-// }
+function removeOpenLightboxClass() {
+  refs.lightbox.classList.remove('is-open');
+}
